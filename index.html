@@ -18,24 +18,32 @@
 const $=id=>document.getElementById(id);let result='',tagList=[];
 function clean(s){return String(s||'').trim()}
 function hashtag(s){const x=s.toLocaleLowerCase('uz-UZ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9а-яёўқғҳ]/gi,'');return x?'#'+x.slice(0,28):''}
-function generate(){
+async function generate(){
  const n=clean($('name').value),priceText=clean($('price').value),p=Number(priceText),cat=clean($('category').value),cond=$('condition').value,platform=$('platform').value,features=clean($('features').value).split(/[\n;]+/).map(clean).filter(Boolean),aud=clean($('audience').value),extra=clean($('extra').value);
  if(!n){$('status').textContent='Mahsulot nomini kiriting.';return}
  if(priceText&&(!Number.isFinite(p)||p<0)){$('status').textContent='Narxni to‘g‘ri kiriting.';return}
  if(!features.length){$('status').textContent='Kamida bitta haqiqiy xususiyat kiriting.';return}
- const money=priceText? p.toLocaleString('uz-UZ')+' so‘m':'Narx: kelishiladi';
+ if(features.length>12||features.some(x=>x.length>180)||extra.length>500){$('status').textContent='Xususiyatlar 12 tadan oshmasin; har biri 180 belgidan, qo‘shimcha ma’lumot 500 belgidan qisqa bo‘lsin.';return}
+ const money=priceText?p.toLocaleString('uz-UZ')+' so‘m':'Narx: kelishiladi';
  const featureLines=features.map((v,i)=>(i+1)+'. '+v);
  const heading=platform==='instagram'?'✨ '+n.toLocaleUpperCase('uz-UZ'):platform==='telegram'?'🛍 '+n:'📦 '+n;
  const audienceLine=aud?'Kimlar uchun: '+aud:'';
  const platformCTA=platform==='instagram'?'Buyurtma uchun Direct’ga yozing.':platform==='telegram'?'Buyurtma berish uchun xabar yuboring.':platform==='market'?'Savollaringiz bo‘lsa, sotuvchiga yozing.':'Bog‘lanish uchun xabar qoldiring.';
- const facts=['Holati: '+cond,cat?'Kategoriya: '+cat:'', 'Narxi: '+money,audienceLine].filter(Boolean);
- let blocks=[heading,'',facts.join('\n'),'','Asosiy xususiyatlari:',...featureLines,'',extra?'Qo‘shimcha ma’lumot:\n'+extra:'',platformCTA].filter(Boolean);
+ const facts=['Holati: '+cond,cat?'Kategoriya: '+cat:'','Narxi: '+money,audienceLine].filter(Boolean);
+ const blocks=[heading,'',facts.join('\n'),'','Asosiy xususiyatlari:',...featureLines,'',extra?'Qo‘shimcha ma’lumot:\n'+extra:'',platformCTA].filter(Boolean);
  if(platform==='instagram')blocks.push('','#'+hashtag(cat||'mahsulot').slice(1)+' #uzbekistan #sotuv');
  if(platform==='telegram')blocks.push('','#sotuv #uzbekistan');
  if(platform==='market')blocks.push('','Mahsulot tavsifi kiritilgan ma’lumotlarga asoslangan.');
- result=blocks.join('\n');
- const tags=[hashtag(n),hashtag(cat), '#sotuv','#uzbekistan'].filter(Boolean);tagList=[...new Set(tags)];
- $('preview').textContent=result;$('preview').classList.remove('muted');$('tags').innerHTML=tagList.map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('');$('status').textContent='E’lon tayyor. Barcha xususiyatlar siz kiritgan ma’lumotlardan olindi.';
+ let online=false,button=$('generate');button.disabled=true;button.textContent='Yaratilmoqda...';$('status').textContent='AI e’lon tayyorlayapti...';
+ try{
+  const platformName=({instagram:'Instagram',telegram:'Telegram',market:'Marketplace',universal:'Universal'})[platform];
+  const response=await fetch('https://soft-glade-3782odiy-ai-tutor.bekiuz67.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'market',name:n,price:priceText,category:cat,condition:cond,platform:platformName,features,audience:aud,extra})});
+  const data=await response.json();if(!response.ok||!data.reply)throw new Error(data.error||'AI server javob bermadi');result=data.reply;online=true;
+ }catch(error){result=blocks.join('\n')}
+ const tags=[hashtag(n),hashtag(cat),'#sotuv','#uzbekistan'].filter(Boolean);tagList=[...new Set(tags)];
+ $('preview').textContent=result;$('preview').classList.remove('muted');$('tags').innerHTML=tagList.map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('');
+ $('status').textContent=online?'Haqiqiy AI e’lon yaratdi. Mahsulotga oid faktlarni tekshirib chiqing.':'AI serveriga ulanib bo‘lmadi; lokal faktlarga asoslangan generator ishlatildi.';
+ button.disabled=false;button.textContent='E’lon tayyorlash';
 }
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 async function copyText(){if(!result){$('status').textContent='Avval e’lon tayyorlang.';return}try{await navigator.clipboard.writeText(result+'\n\n'+tagList.join(' '));$('status').textContent='E’lon nusxalandi.'}catch(e){$('status').textContent='Clipboard uchun brauzer ruxsati kerak.'}}
