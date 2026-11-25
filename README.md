@@ -1,16 +1,37 @@
 # BEKIUZ Market AI
 
-Uzbek product listing assistant MVP. Enter product details to create a marketplace-ready listing template, formatted preview and tags.
+O‘zbek tilida marketplace va ijtimoiy tarmoqlar uchun mahsulot e’lonini tayyorlaydigan yengil web-yordamchi.
 
-## Features
-- Product name, price, category, condition, key features and additional info
-- Uzbek listing copy template and preview
-- Tag suggestions
-- Copy listing to clipboard
-- Responsive layout, single-file static app
+## Hozirgi imkoniyatlar
 
-## Run
-Open `index.html` in any browser. No build tools or API keys.
+- Mahsulot nomi, narxi, kategoriyasi, holati, xususiyatlari va auditoriyasini kiritish.
+- Instagram, Telegram, Marketplace yoki Universal formatni tanlash.
+- Cloudflare Worker orqali AI e’lon matnini yaratish.
+- AI xizmati ishlamasa, kiritilgan faktlardan lokal shablon asosida e’lon tayyorlash.
+- Hashtaglar, tayyor matn preview'i, nusxalash va TXT fayl sifatida yuklab olish.
+- Formani tozalash va mobil ekranga mos ko‘rinish.
 
-## Status
-MVP uses local templates (not a connected AI model yet). Planned: AI text generation, photo-based product details, and formats for multiple marketplaces.
+## Ishga tushirish
+
+Statik web-app: `index.html` faylini brauzerda oching yoki GitHub Pages orqali joylashtiring.
+
+## AI integratsiyasi
+
+Brauzer quyidagi Cloudflare Worker manziliga `action: "market"` so‘rovi yuboradi:
+
+`https://soft-glade-3782odiy-ai-tutor.bekiuz67.workers.dev`
+
+Worker ishlamasa, ilova lokal generatorga qaytadi. AI javobining mavjudligi Worker holati, model limiti va tarmoq ulanishiga bog‘liq. Mahsulot faktlarini e’lonni joylashdan oldin tekshiring.
+
+## Hozircha mavjud bo‘lmagan imkoniyatlar
+
+- Mahsulot rasmini AI orqali tahlil qilish.
+- E’lonlarni akkauntda yoki serverda saqlash.
+- Marketplace akkauntlariga bevosita e’lon joylash.
+- Bir nechta foydalanuvchi uchun jamoaviy boshqaruv.
+
+## Keyingi bosqich
+
+Rasm asosida tavsif, marketplace formatlari bo‘yicha aniq shablonlar, e’lonlar tarixi va foydalanuvchi akkauntlari.
+
+Repo: https://github.com/bekiuz/BEKIUZ-Market-AI
